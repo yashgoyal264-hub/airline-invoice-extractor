@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelPlus Invoice Extractor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Authentication Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>TravelPlus Invoice Extractor - Access Required</h2>
+            </div>
+            <div class="modal-body">
+                <p>Enter your official email address for accessing the tool</p>
+                <div class="email-input-group">
+                    <input type="email" id="emailInput" placeholder="Enter your email address">
+                    <div id="emailValidation" class="validation-feedback"></div>
+                </div>
+                <button id="authSubmit" class="btn btn-primary" disabled>Submit</button>
+                <div id="authError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <header class="app-header">
+            <h1>TravelPlus Invoice Extractor</h1>
+            <div class="user-info">
+                <span id="userEmail"></span>
+                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            </div>
+        </header>
+
+        <main class="app-container">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <h2>Upload Invoice PDFs</h2>
+                
+                <!-- File Upload Area -->
+                <div id="dropZone" class="drop-zone">
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <p>Drag and drop PDF files here or</p>
+                    <label for="fileInput" class="btn btn-primary">
+                        Browse Files
+                    </label>
+                    <input type="file" id="fileInput" accept=".pdf" multiple class="hidden">
+                    <p class="hint">Support for multiple PDF files</p>
+                </div>
+
+                <!-- Google Drive Links -->
+                <div class="drive-section" id="driveSectionDiv">
+                    <h3>Or Add Google Drive Links</h3>
+                    <div id="driveStatus" style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #dee2e6;">
+                        <span id="driveStatusText">Checking backend connection...</span>
+                    </div>
+                    <textarea id="driveLinks" placeholder="Paste Google Drive links (one per line)" rows="3"></textarea>
+                    <button id="addDriveLinks" class="btn btn-secondary">Add Drive Links</button>
+                </div>
+
+                <!-- Files List -->
+                <div id="filesList" class="files-list hidden">
+                    <h3>Selected Files</h3>
+                    <div id="filesContainer"></div>
+                    <button id="processBtn" class="btn btn-success">Process Invoices</button>
+                </div>
+            </section>
+
+            <!-- Processing Section -->
+            <section id="processingSection" class="processing-section hidden">
+                <h2>Processing Invoices</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <span id="progressText">0%</span>
+                </div>
+                <div id="processingDetails" class="processing-details"></div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results-section hidden">
+                <h2>Extraction Results</h2>
+                <div class="results-summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Total Invoices</span>
+                        <span id="totalInvoices" class="summary-value">0</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Successfully Processed</span>
+                        <span id="successCount" class="summary-value">0</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Failed</span>
+                        <span id="failedCount" class="summary-value">0</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Total Amount</span>
+                        <span id="totalAmount" class="summary-value">₹0.00</span>
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button id="downloadCSV" class="btn btn-success">Download CSV</button>
+                    <button id="resetBtn" class="btn btn-secondary">Process New Invoices</button>
+                </div>
+
+                <div class="results-table-container">
+                    <h3>Data Preview</h3>
+                    <div class="table-wrapper">
+                        <table id="resultsTable">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="errorsList" class="errors-list hidden">
+                    <h3>Processing Errors</h3>
+                    <div id="errorsContainer"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="config/constants.js"></script>
+    <script src="auth/authentication.js"></script>
+    <script src="auth/emailValidation.js"></script>
+    <script src="utils/sessionManager.js"></script>
+    <script src="utils/logger.js"></script>
+    <script src="utils/pdfParser.js"></script>
+    <script src="utils/dataExtractor.js"></script>
+    <script src="utils/csvGenerator.js"></script>
+    <script src="utils/driveHandler.js"></script>
+    <script src="utils/driveHandlerWithBackend.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Check and update Drive status on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusDiv = document.getElementById('driveStatus');
+            const statusText = document.getElementById('driveStatusText');
+            const driveLinks = document.getElementById('driveLinks');
+            const addDriveBtn = document.getElementById('addDriveLinks');
+            
+            // Check if backend is available
+            const backendAvailable = await driveHandlerBackend.checkBackendConnection();
+            
+            if (backendAvailable) {
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.borderColor = '#c3e6cb';
+                statusDiv.style.color = '#155724';
+                statusText.innerHTML = '✅ <strong>Backend Connected:</strong> Google Drive downloads enabled';
+                driveLinks.disabled = false;
+                addDriveBtn.disabled = false;
+                
+                // Replace the default handler with backend handler
+                window.driveHandler = driveHandlerBackend;
+            } else {
+                statusDiv.style.background = '#fff3cd';
+                statusDiv.style.borderColor = '#ffc107';
+                statusDiv.style.color = '#856404';
+                statusText.innerHTML = '⚠️ <strong>Backend Not Running:</strong> Start backend with: cd backend && ./start_backend.sh';
+                driveLinks.placeholder = 'Backend required for Google Drive links';
+                driveLinks.disabled = true;
+                addDriveBtn.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>

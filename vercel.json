@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/drive.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/download-drive-file",
+      "dest": "/api/drive.js"
+    },
+    {
+      "src": "/api/download-multiple",
+      "dest": "/api/drive.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/drive.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ]
+}

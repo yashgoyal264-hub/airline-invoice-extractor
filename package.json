@@ -1,0 +1,22 @@
+{
+  "name": "travelplus-invoice-extractor",
+  "version": "1.0.0",
+  "description": "TravelPlus Invoice Extractor - Extract airline invoice data to CSV",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "invoice",
+    "pdf",
+    "extractor",
+    "airline",
+    "csv"
+  ],
+  "author": "FabHotels",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

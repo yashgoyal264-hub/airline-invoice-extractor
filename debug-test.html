@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Invoice Extraction</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        pre {
+            background: #f9f9f9;
+            padding: 10px;
+            border-left: 3px solid #667eea;
+            overflow-x: auto;
+        }
+        .result {
+            background: #e8f5e9;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Invoice Extraction</h1>
+    
+    <div class="section">
+        <h2>Upload PDF to Debug</h2>
+        <input type="file" id="pdfFile" accept=".pdf">
+        <button onclick="debugPDF()">Debug Extraction</button>
+    </div>
+
+    <div id="results"></div>
+
+    <!-- Load scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="config/constants.js"></script>
+    <script src="utils/pdfParser.js"></script>
+    <script src="utils/dataExtractor.js"></script>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        async function debugPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            const resultsDiv = document.getElementById('results');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a PDF file');
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="section">Processing...</div>';
+            
+            try {
+                const file = fileInput.files[0];
+                
+                // Parse PDF
+                const pdfData = await pdfParser.parsePDF(file);
+                
+                if (!pdfData.success) {
+                    throw new Error('Failed to parse PDF');
+                }
+                
+                const text = pdfData.text;
+                
+                // Create debug output
+                let html = '';
+                
+                // Show raw text (first 2000 chars)
+                html += `
+                    <div class="section">
+                        <h2>📄 Raw Text (First 2000 chars)</h2>
+                        <pre>${text.substring(0, 2000).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                    </div>
+                `;
+                
+                // Test specific extractions
+                html += '<div class="section"><h2>🔍 Extraction Tests</h2>';
+                
+                // Test Air Travel Taxable
+                const testAirTravel = () => {
+                    const patterns = [
+                        /Air\s*Travel\s*and\s*related\s*charges\s+996425\s+([\d,]+\.?\d*)/i,
+                        /Air\s*Travel[\s\S]*?996425\s+([\d,]+\.?\d*)/i,
+                        /996425\s+([\d,]+\.?\d*)/i
+                    ];
+                    
+                    for (let i = 0; i < patterns.length; i++) {
+                        const match = text.match(patterns[i]);
+                        if (match) {
+                            return `Pattern ${i+1} matched: ${match[1]}`;
+                        }
+                    }
+                    return 'No pattern matched';
+                };
+                html += `<div class="result">Air Travel Taxable: ${testAirTravel()}</div>`;
+                
+                // Test IGST Amount
+                const testIGST = () => {
+                    // Clean text first
+                    const cleanedText = text.replace(/(\d+)\.\s*\n\s*(\d+)/g, '$1.$2');
+                    
+                    // Look for IGST amount in different ways
+                    const patterns = [
+                        /5\.00\s+([\d,]+\.?\d*)/g,  // After 5.00 (IGST %)
+                        /IGST[\s\S]*?Amount[\s\S]*?([\d,]+\.?\d*)/i,
+                        /Grand\s*Total[\s\S]*?([\d,]+\.?\d*)[\s\S]*?([\d,]+\.?\d*)[\s\S]*?([\d,]+\.?\d*)[\s\S]*?([\d,]+\.?\d*)/i
+                    ];
+                    
+                    let results = [];
+                    for (let i = 0; i < patterns.length; i++) {
+                        const matches = [...cleanedText.matchAll(patterns[i])];
+                        if (matches.length > 0) {
+                            if (i === 2 && matches[0][4]) {
+                                results.push(`Pattern ${i+1} (Grand Total): ${matches[0][4]}`);
+                            } else if (matches[0][1]) {
+                                results.push(`Pattern ${i+1}: ${matches[0][1]}`);
+                            }
+                        }
+                    }
+                    return results.join(', ') || 'No pattern matched';
+                };
+                html += `<div class="result">IGST Amount: ${testIGST()}</div>`;
+                
+                // Test Grand Total
+                const testGrandTotal = () => {
+                    const cleanedText = text.replace(/(\d+)\.\s*\n\s*(\d+)/g, '$1.$2');
+                    
+                    // Find all numbers after Grand Total
+                    const gtMatch = cleanedText.match(/Grand\s*Total[\s\S]{0,200}/i);
+                    if (gtMatch) {
+                        const numbers = gtMatch[0].match(/[\d,]+\.\d{2}/g);
+                        if (numbers) {
+                            return `Found numbers: ${numbers.join(', ')} → Last: ${numbers[numbers.length - 1]}`;
+                        }
+                    }
+                    return 'No Grand Total found';
+                };
+                html += `<div class="result">Grand Total: ${testGrandTotal()}</div>`;
+                
+                // Show what the extractor returns
+                html += '<h3>Actual Extraction Results:</h3>';
+                const extractionResult = await dataExtractor.extractInvoiceData(pdfData, file.name);
+                
+                if (extractionResult.success) {
+                    const data = extractionResult.data;
+                    html += `
+                        <div class="result">
+                            <strong>Taxable Value:</strong> ${data.taxableValue}<br>
+                            <strong>Non-Taxable Value:</strong> ${data.nonTaxableValue}<br>
+                            <strong>IGST Amount:</strong> ${data.igstAmount}<br>
+                            <strong>IGST %:</strong> ${data.igstPercent}<br>
+                            <strong>Grand Total:</strong> ${data.grandTotal}<br>
+                            <strong>Customer Name:</strong> ${data.gstinCustomerName}<br>
+                            <strong>Client GST:</strong> ${data.clientGSTNo}
+                        </div>
+                    `;
+                } else {
+                    html += `<div class="result error">Extraction failed: ${extractionResult.error}</div>`;
+                }
+                
+                html += '</div>';
+                
+                // Show Grand Total section
+                const gtSection = text.match(/Grand\s*Total[\s\S]{0,200}/i);
+                if (gtSection) {
+                    html += `
+                        <div class="section">
+                            <h2>Grand Total Section</h2>
+                            <pre>${gtSection[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                        </div>
+                    `;
+                }
+                
+                resultsDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="section error">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

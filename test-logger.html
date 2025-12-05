@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Logger - TravelPlus</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .result {
+            background: #e8f5e9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Logger Test - Direct Google Sheets Connection</h1>
+    
+    <div class="test-section">
+        <h2>Test Google Sheets Logging</h2>
+        <button onclick="testDirectLog()">Send Test Data to Google Sheets</button>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test with Sample Invoice Data</h2>
+        <button onclick="testWithInvoiceData()">Send Invoice Data</button>
+        <div id="invoiceResults"></div>
+    </div>
+
+    <script>
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjw6rK5t091HYlbh8sYn0_BU2KB1rDt9mLSZrYdDgVG6B6X9AOif3XqMkVZs7DCm1gzg/exec';
+
+        async function testDirectLog() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="result">Sending test data...</div>';
+            
+            const testData = {
+                userEmail: 'test@fabhotels.com',
+                sessionId: 'test-' + Date.now(),
+                event: 'test',
+                numberOfFiles: 5,
+                processingTime: 30,
+                llmCost: 0.05,
+                successRate: 100,
+                errorCount: 0,
+                toolVersion: '1.0.0',
+                totalAmount: 25000,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('Sending data:', testData);
+            
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                resultsDiv.innerHTML = `
+                    <div class="result">✅ Data sent successfully!</div>
+                    <div class="result">Check your Google Sheet for the new entry.</div>
+                    <pre>${JSON.stringify(testData, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testWithInvoiceData() {
+            const resultsDiv = document.getElementById('invoiceResults');
+            resultsDiv.innerHTML = '<div class="result">Processing invoice data...</div>';
+            
+            // Simulate processing 3 invoices
+            const invoiceData = {
+                userEmail: 'user@fabhotels.com',
+                sessionId: 'invoice-' + Date.now(),
+                event: 'process_complete',
+                numberOfFiles: 3,
+                processingTime: 15,
+                llmCost: 0.03,
+                successRate: 100,
+                errorCount: 0,
+                toolVersion: '1.0.0',
+                totalAmount: 12566 + 8750 + 15234,  // Sum of 3 invoices
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('Sending invoice data:', invoiceData);
+            
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(invoiceData)
+                });
+                
+                resultsDiv.innerHTML = `
+                    <div class="result">✅ Invoice data sent!</div>
+                    <div class="result">
+                        <strong>Details:</strong><br>
+                        - Files Processed: ${invoiceData.numberOfFiles}<br>
+                        - Total Amount: ₹${invoiceData.totalAmount.toLocaleString('en-IN')}<br>
+                        - Success Rate: ${invoiceData.successRate}%
+                    </div>
+                    <pre>${JSON.stringify(invoiceData, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Test connection on load
+        window.onload = async () => {
+            console.log('Testing Google Sheets connection...');
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ test: true })
+                });
+                console.log('✅ Google Sheets connection successful');
+            } catch (error) {
+                console.error('❌ Google Sheets connection failed:', error);
+            }
+        };
+    </script>
+</body>
+</html>
