@@ -1,8 +1,14 @@
-# TravelPlus Invoice Extractor
+# 🧾 TravelPlus Invoice Extractor
 
 A comprehensive web application for extracting structured data from airline invoices (PDF files) and exporting to CSV format. Designed for FabHotels and TravelPlus employees to automate invoice data extraction for accounting/finance teams.
 
-## Features
+## 🌐 Live Application
+
+**🚀 Access the tool here**: [https://yashgoyal264-hub.github.io/airline-invoice-extractor/](https://yashgoyal264-hub.github.io/airline-invoice-extractor/)
+
+*This is a permanent, free URL that never expires!*
+
+## ✨ Features
 
 ✅ **User Authentication**: Email-based access control with domain validation (@fabhotels.com, @travelplusapp.com)  
 ✅ **Usage Logging**: Comprehensive tracking via Google Sheets integration  
@@ -13,13 +19,13 @@ A comprehensive web application for extracting structured data from airline invo
 ✅ **Progress Tracking**: Real-time processing status updates  
 ✅ **Error Handling**: Detailed error reporting and validation  
 
-## Quick Start
+## 🚀 Quick Start
 
-1. Open `index.html` in a web browser
-2. Enter your official email address (@fabhotels.com or @travelplusapp.com)
-3. Upload PDF invoices or paste Google Drive links
-4. Click "Process Invoices"
-5. Download the generated CSV file
+1. **Go to**: [https://yashgoyal264-hub.github.io/airline-invoice-extractor/](https://yashgoyal264-hub.github.io/airline-invoice-extractor/)
+2. **Enter your official email** (@fabhotels.com or @travelplusapp.com)
+3. **Upload PDF invoices** or paste Google Drive links
+4. **Click "Process Invoices"**
+5. **Download the generated CSV file**
 
 ## Setup Instructions
 
@@ -175,6 +181,44 @@ The application logs the following data to Google Sheets:
 - Clear browser localStorage and try again
 - Ensure email domain is exactly @fabhotels.com or @travelplusapp.com
 
+## 🚀 Hosting & Deployment
+
+### Current Deployment
+- **Platform**: GitHub Pages (Free, Permanent)
+- **Live URL**: [https://yashgoyal264-hub.github.io/airline-invoice-extractor/](https://yashgoyal264-hub.github.io/airline-invoice-extractor/)
+- **Repository**: [https://github.com/yashgoyal264-hub/airline-invoice-extractor](https://github.com/yashgoyal264-hub/airline-invoice-extractor)
+- **Hosting Type**: Static Site (Client-side processing)
+- **SSL Certificate**: ✅ Automatic HTTPS
+- **Uptime**: 99.9% (GitHub Infrastructure)
+- **Cost**: 100% Free Forever
+
+### Benefits of GitHub Pages Hosting
+✅ **Permanent URL**: Never expires  
+✅ **Global CDN**: Fast worldwide access  
+✅ **Zero Maintenance**: Auto-updates on code push  
+✅ **Professional**: Custom domain support available  
+✅ **Reliable**: Enterprise-grade infrastructure  
+✅ **Secure**: Automatic SSL/TLS encryption  
+
+### Making Updates
+To update the application:
+```bash
+# Make your changes to the code
+git add .
+git commit -m "Update description"
+git push origin main
+# Changes will be live in 1-2 minutes automatically
+```
+
+## 📱 Browser Requirements
+
+- **Chrome**: 90+ (Recommended)
+- **Firefox**: 88+
+- **Safari**: 14+
+- **Edge**: 90+
+
+*All PDF processing happens client-side in your browser for security and privacy.*
+
 ## Support
 
 For issues or questions:
@@ -182,11 +226,26 @@ For issues or questions:
 2. Verify all setup steps were completed
 3. Contact the development team with specific error details
 
-## Version
+## 📋 Version History
 
-Current Version: 1.0.0
+**Current Version: 2.0.0** (December 5, 2025)
 
-## License
+### v2.0.0 - Permanent Hosting Update
+- ✅ **NEW**: Deployed to GitHub Pages for permanent hosting
+- ✅ **NEW**: Permanent URL that never expires
+- ✅ **IMPROVED**: Enhanced README with deployment information
+- ✅ **IMPROVED**: Added comprehensive hosting documentation
+- 🔧 **TECHNICAL**: Migrated from temporary Cloudflare tunnels
+
+### v1.0.0 - Initial Release
+- ✅ User authentication with domain validation
+- ✅ PDF upload and Google Drive integration
+- ✅ Batch processing up to 50 invoices
+- ✅ Automated data extraction from IndiGo invoices
+- ✅ CSV export functionality
+- ✅ Google Sheets usage logging
+
+## 📄 License
 
 Internal use only - FabHotels and TravelPlus
 
